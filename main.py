@@ -69,12 +69,12 @@ if __name__ == "__main__":
 
     graph, weights, time_windows, in_angles, out_angles, pushback_edges = Initial_network.initial_network(the_airport2)
 
-    # for flightnum in range(0, len(flights)):
+    for flightnum in range(0, len(flights)):
     # list = [2, 27, 30, 44, 48, 495]
-    Standlist = ['911', '411', '108', '205', '417', '879']
-    Runwaylist = ['A1', '16R-34L', 'W3', '16L-34R', 'B6', '16R-34L']
-    path_list = []
-    for flightnum in range(len(Standlist)):
+    # Standlist = ['911', '411', '108', '205', '417', '879']
+    # Runwaylist = ['A1', '16R-34L', 'W3', '16L-34R', 'B6', '16R-34L']
+        path_list = []
+    # for flightnum in range(len(Standlist)):
 
         # 初始化开始时间
         init_time = datetime.datetime(2023, 4, 17, 7, 0)
@@ -91,9 +91,9 @@ if __name__ == "__main__":
             start_time = flight.aldt
 
         # 这里是选择确定飞机的起飞与终点
-        # source, target = Sour_and_Des.find_the_sour_des(stands=stand_dict, pists=runway_dict, flight=flight)
-        source = show_point_coor(Standlist[flightnum], points=the_airport2.points)
-        target = show_point_coor(Runwaylist[flightnum], points=the_airport2.points)
+        source, target = Sour_and_Des.find_the_sour_des(stands=stand_dict, pists=runway_dict, flight=flight)
+        # source = show_point_coor(Standlist[flightnum], points=the_airport2.points)
+        # target = show_point_coor(Runwaylist[flightnum], points=the_airport2.points)
         check = False
         if len(graph[source]) > 1:  # Only one pushback do not think about this
             for edge in graph[source]:
@@ -147,7 +147,7 @@ if __name__ == "__main__":
                 # Draw_path.create_matplotlib_figure(graph, path, name1, name2, flightnum2)
             print("No path found.", flightnum, 'source', source, name1, 'targrt', target, name2)
 
-    Draw_path.create_matplotlib_figure_for_mutiaircraft(graph, path_list, name1, name2, flightnum)
+    # Draw_path.create_matplotlib_figure_for_mutiaircraft(graph, path_list, name1, name2, flightnum)
 
     #     route, route_coord, route_activation_times = quickest_path_with_time_windows(graph, weights, time_windows, source, target, start_time)
     #
