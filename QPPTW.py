@@ -109,12 +109,13 @@ def QPPTW_algorithm(graph, weights, time_windows, source, target, start_time, in
         if current_vertex == target:
             path = []
             path.append((current_vertex, (current_start, current_end), prev_label))
+            time_cost = current_start - start_time
             while prev_label:
                 path.append(prev_label)
                 current_vertex, _, prev_label = prev_label
             path.reverse()
             new_time_windows = Readjustment_time_windows(graph, weights, time_windows, path)
-            return path, path, new_time_windows
+            return path, path, new_time_windows, time_cost
 
         if current_vertex != target:
             path_for_test = []
@@ -144,7 +145,7 @@ def QPPTW_algorithm(graph, weights, time_windows, source, target, start_time, in
                     delta = 0  # 控制有1.5pi 等于0 实际为负数
             else:
                 delta = 1
-            if 0 <= delta :
+            if 0 <= delta:
                 # 加入角度约束
                 for window_start, window_end in time_windows[edge]:
                     if current_end < window_start:
@@ -186,6 +187,6 @@ def QPPTW_algorithm(graph, weights, time_windows, source, target, start_time, in
                         # heap[new_end] = new_label
                         heapq.heappush(heap, (new_end, new_label))
     """path_for_test"""
-    return None, pathlist, time_windows
+    return None, pathlist, time_windows, None
 
 

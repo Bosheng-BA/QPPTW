@@ -69,6 +69,8 @@ if __name__ == "__main__":
 
     graph, weights, time_windows, in_angles, out_angles, pushback_edges = Initial_network.initial_network(the_airport2)
 
+    COSTS = []
+    Total_cost = 0
     for flightnum in range(0, len(flights)):
     # list = [2, 27, 30, 44, 48, 495]
     # Standlist = ['911', '411', '108', '205', '417', '879']
@@ -94,32 +96,34 @@ if __name__ == "__main__":
         source, target = Sour_and_Des.find_the_sour_des(stands=stand_dict, pists=runway_dict, flight=flight)
         # source = show_point_coor(Standlist[flightnum], points=the_airport2.points)
         # target = show_point_coor(Runwaylist[flightnum], points=the_airport2.points)
-        check = False
+        check = 0
         if len(graph[source]) > 1:  # Only one pushback do not think about this
             for edge in graph[source]:
                 if edge not in pushback_edges:  # Ensure the boolean value
-                    check = False
-                    break
+                    continue
                 if edge in pushback_edges:
-                    check = True
+                    check += 1
 
-        if check:  # When the stand have two ways to pushback, we need choose one
+        if check >= 2:  # When the stand have two ways to pushback, we need choose one
             for edge in graph[source]:
-                graph_copy[source].remove(edge)
-                # print(graph_copy)
-                result, path_for_test, new_time_windows = QPPTW.QPPTW_algorithm(graph_copy, weights, time_windows, source, target,
-                                                              start_time, in_angles, out_angles, Stand)
-                graph_copy[source].append(edge)
-                results.append(result)
-                new_time_windows_list.append(new_time_windows)
-                paths.append(path_for_test)
+                if edge in pushback_edges:
+                    graph_copy[source].remove(edge)
+                    # print(graph_copy)
+                    result, path_for_test, new_time_windows, time_cost = QPPTW.QPPTW_algorithm(graph_copy, weights,
+                                                                                               time_windows, source, target,
+                                                                                               start_time, in_angles,
+                                                                                               out_angles, Stand)
+                    graph_copy[source].append(edge)
+                    results.append(result)
+                    new_time_windows_list.append(new_time_windows)
+                    paths.append(path_for_test)
             new_results = results
             if new_results:
                 result = min(new_results,
                              key=lambda x: x[-1][1][0] if x and x[-1] and len(x[-1]) >= 2 else float('inf'))
                 new_time_windows = new_time_windows_list[results.index(result)]
         else:  # the normal condition
-            result, path_for_test, new_time_windows = QPPTW.QPPTW_algorithm(graph, weights, time_windows, source, target, start_time,
+            result, path_for_test, new_time_windows, time_cost = QPPTW.QPPTW_algorithm(graph, weights, time_windows, source, target, start_time,
                                                           in_angles, out_angles, Stand)
 
         time_windows = new_time_windows
@@ -130,9 +134,12 @@ if __name__ == "__main__":
 
         # 检查输出以及绘制图像
         if result:
-            print(flightnum, "Quickest Path:", [label[0] for label in result])
+            # print(flightnum, "Quickest Path:", [label[0] for label in result])
+            # print(flightnum, "Time-cost:", time_cost)
             path = [label[0] for label in result]
             path_list.append(path)
+            COSTS.append(time_cost)
+            Total_cost = Total_cost + time_cost
             # if flightnum in list:
                 # Draw_path.create_matplotlib_figure(graph, path, name1, name2, flightnum)
         else:
@@ -146,7 +153,8 @@ if __name__ == "__main__":
                 flightnum2 = str(flightnum) + "_No_" + str(p)
                 # Draw_path.create_matplotlib_figure(graph, path, name1, name2, flightnum2)
             print("No path found.", flightnum, 'source', source, name1, 'targrt', target, name2)
-
+    print(COSTS)
+    print(Total_cost)
     # Draw_path.create_matplotlib_figure_for_mutiaircraft(graph, path_list, name1, name2, flightnum)
 
     #     route, route_coord, route_activation_times = quickest_path_with_time_windows(graph, weights, time_windows, source, target, start_time)
